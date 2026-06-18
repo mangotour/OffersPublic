@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mango Tour - Ваше предложение</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const tourData = {
+            city: "НЯЧАНГ",
+            dates: "10 мая - 14 мая",
+            pax: 2,
+            totalPrice: "1,200,000 KRW",
+            logoPath: "logo.png",
+            contact: {
+                whatsapp: "821099752550",
+                instagram: "https://www.instagram.com/mango.tour_?utm_source=qr&igsh=MWoyZDZ6NnZrcXg3cA==",
+                facebook: "https://www.facebook.com/share/1FHwMCpMCN/?mibextid=wwXIfr"
+            },
+            flights: [{"airline": "Eastar Jet", "depTime": "20:55", "arrTime": "23:55", "from": "Сеул Инчхон", "to": "Нячанг Камрань", "number": "", "baggage": "", "type": "туда"}, {"airline": "Eastar Jet", "depTime": "01:10", "arrTime": "07:55", "from": "Нячанг Камрань", "to": "Сеул Инчхон", "number": "", "baggage": "", "type": "обратно"}],
+            hotels: [{"name": "Panorama Nha Trang Star Beach", "stars": 5, "location": "Нячанг", "roomType": "Standard Double Room", "mealPlan": "Завтрак включен", "images": ["https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-viXeuFqy6M2eM5PvoCaL4dEvBRm91TgiwgQJUtVzLk4efCivqI1QSnKVjF6eJcLaFk2hJVz6AQlPsOZWEy7HQgWnWsU4s3V7jLbC5upUgo2PmGV5MC5DiEF4UTvD71zT3M_IiNLNgcJtixmwAxT_9XaxVCCPlt6sOd6jPRGeZoXnOpel3A5aMw_naoqkj1c7E2pC0f5sh5GqL_oMbLMSCFQqrb_mbdlfk3OkFA2xJ6zu7ym71dZ3YkSNQG1qYKVLaTEal375Djk93qSqPGwlfbVU77oBI75wPZ3vhaDjrNKg&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-u5CTpM2bYtAhSXMNFrlup79GkGYetwDvDRceovw_iYQItxMv5n007R4qc-JgN2YLo5gqOnSgxIyqH2ifw7fpgx62wLByfsJjzI4eveGy4OvT9lFvwGSM7yzBWi67g25fScu2C7kuMforOW7WRfoYy8bFk14N-cwBseosPUuvKDl0sSLyLMjVJs3LdnyQutRoalaMHIKezU9NoMFE8zh6sBxskHM5ioxdw4zfQ90QH53F7stB80-cQZ0pHX-tc8DsO7i2Svz0RVfpUF0Zflxz3M1CenRk08b00nb9L_Gz9hnoIn4mBZP8NrOuf9DG13yh6A6Y77B3aoPq_2yXfcyM-DEQSLLOzbibdDyo5l2z0vgoDUgrMJn_8VKtRUYTSabuxwYDhkak3HvA7naUQDGRxz7yUnmJn9kvk_vCI3aiiiVg&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-uN7gsWFqgTcGUnpaAjON1gA6CCFLO0nnpy8XsNtH2jqL1jKzflpZ7Msr4Gfd4I3xbMb9bsh_-btw5Xwmq8oHMUZ6oXYuoLEd0r9jowghLhq42CBiK_gIHA6bV5548ow1l7gXTLnH0tQ-ArG89h568H9PUukrIDh8rAOrLIGqbPWBBtc3HGv3bX9nIYlqh_rqhE6u7VuxMQK4MUw2UV3OPNDnNGBbI7-fRvt2X7ALhQmOoULg6PANz-47-wH86NgGxqjExYCirEDA_hOyTTRKWE30n48m42BsO8c9iYBoSkmXO0-8tNwrAcLAmHPN9tOtde85ppb9rnWgzFcCwWQJd1a0cOltjnNpgdDsf3ntaDazz-wFp_pcJYbseuguzdRR4EHWWPaFthuXp-RuVUvcvmXQhVaipl91Na9yhoLk6GdeMZ&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-vjMMbvTcEfz8LDYyZKgzzdgxr9ztTTbT6lqp4t5-SCgPmgK_SjjvL74x4xh9e9fmo1ZKNEbpwPwPBwQqamBa3O7VZIMgJ5fxdozasXhAAPulLuqkLk5Va8MmepxO6mlH3GEsnxMEWPW3KqLukmtQCPP7d4WFPGKG2-1bdPKXBQhHJUJAPWXSET1Zol-ABcAzzxplCF6ziM1uBLeLsspA7og7Ze1IgREPm0Zl4HAuQ6aoPE32jRf3SI14fa5C44UGyh5Kh0Q49G73liZezIwB_ZI6osc8VCERigQtdI3K9nptIaYsUYNwbiRmaz0r22NUzuXi5QM6kRbJ9L48Rr2eXhu_CvUuO6_8tuTQfzEG8-CpwYBacUquM58m1d9lBHZmUTXmRvoKWZZZaWCajYH-uEiU2jhXvzRsuYLYOreZo&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-s5ms_i80_2OWmPZdevZZnmgv746ZaHeO64h48ntdf6viP5CavlF_CBITyF-7P4uMlSc8JQeDS9e7lANOg5KN_6hyPACKwMk7n7Bw-r438uj6HJL3cYF9VL1MyD6IFTvJPPcg0AHprVgrO9XsZ7PGnCyIFR-SYnbdUsRidvldWBUR_s2QjEAVlHS2JlNuvlmHMSUvbt2RDlMctqG8HjoyDmYH5Vn1nDFnE7_W84M30IV4bgF_SkU0qi7PWgZSdbzh_fS88J4SAhoCvnLTirdNIOO2bL2-sf13w26cHeD22FYN5w9IxopuAqw_BorcCsGUkFFm0XEyBlzwNuokLknFo6vFyuWg-XsClLQlPvs4Fyg0KJNAbbuvioLwLIoT0u6xlt9m6FVulZ1ve3ufpUQp-dKL_YQVscXcy9VHg_donoog&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-vrsdvPgz5bFgd9ns52gyZKw90Mp28T_NmX_UrF_WpQ2LPvcDlKxWaJPonCVx7IEcSvxNKsgOWV6sa4lIwAm8Flv7Y_H0auaDuArvk6cLm_qF56VRRlkvMbuwbmcmvguL8pFxyXjfRi7czun772A4N70WBQbmAR8C33TJtHNvPzpgJglq91PMLIOkhq2qceOGl8QMfvBjPbTYcfqs0oiV5WF2HzrNhVgS5K-s5ouAa8AUdMZ1bZH_qmyWYIQ_-wNRSj9wflaew2biwoXpSGQitVgYLOHl8K5x8F6Uo_C4THer4Qmx1OT41_pGLN9oDERjXEhFt1jpl79L0ZxioCtMu-Hh6kcj7gXWUb1MeRZbfFcB37Guxatudc5sGc0IcUZ61m8YjhbTStpkwTYAaYpeC92KgJ1cMvVn6lAC2xn-A&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-uDlbQEBwxK1Z5viOpA4Gj73S9MNSfyy-LGxdsEinrBI51VWHm4V5DZKokdIGxlfj_DCHj8yeQ6aaCfmNGP45IivEm9R-TQEJjiQiXCU4Bk0Y6BkqKes1u9U4Ukor7LF1pp8Bfms_gXgNaD_jFK3tEvhKEj-brhzBrag_t0OhFlx3FoG0aYlVs7VfQBNgn4mBl0vBFhW6rmY8Y6eubur9oZ27j0nmWvKPF83YpFIpDFvvAXukywKqRIXtBkjrcQeLupICGxharxUO5dNFWvigd-1at5-srHepJ4SOn-echCXdxOMiPFUc3em7IX-40mPfERBnVZdeuAuQRUgv4xtYBErQCHHKWu7xUTjk-DaTrL64tJANZl2mDhY1BnmEhqaQbwTTS-fhcFYCweLTpZdUkB6F6L_YLdTktuWFfaPcZPDqz7&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-vMfkGZeeIUx1Z0zF3x_mdx5hjc7TQsVAyD4DMIWJY1zV4UbRYNjfp1DbaDIISm2v0DHLTXSl11V4_RmpXv7foYPUNEkXEBMGU4ZoHY7K3hdBoSQUN1eeUWV2Kg69MZifBISRW1M2mEM6r0gN3FOL-4FYfW1_ouBG_PoZ7yrG2ZLYciEF73wDVZZm2YtzPywC9AUF6NoTWUe7W19ILpzkLvfASF1VvNBrJK1Bs2gao2cHwQ6VdYXvfFmHNk6nHI0xhwZoNDDa8vMe2GzE7-Eir5H3nC9c6w_tBG3qbPnhr0crDXzA4KnB2AP90cLB3RhZqXStOs7rPdwRRjBqkSmp1kc5z8l6S1oanPhKDds6RiNe33LFNQU7WeBfVQADNQFChA-0Fkrt8LIIist79BTADKqRKuONugc2UfVSxZ1CG4wxPuq4m-w6T5ytU7gWg0&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-sK_UWb1gyAmqYn9dIKMK1N-lsVs2i67fMjPEq4sOABFx8pXQGilrCzyccv6f26ZQWikhW8J2JQUFnTn3IMlrNnFWMraWWBl5IB4X6gOkcqmULcEWH_pwB7zV4kW5Xk8Se6VXiyWMzBEMHjJLYiokABsYmh6QdSPciafBDsgzBLrL9I7S3JqozietxuIc_C_OKJ9ku-3auzR00bmgQ62tKQfqpRv50Kw1E-4-H4CLCKtdy6PvxAIesZPiLU-QLk2Wv7iiO66QypUR1E7Al6xAarl7XsI0hZxmGBZAy-Fl_nTGrPObxSQZgaPifuZWg5uF6RFhcpo380Heq4aq2fCKx6_XfbSX0cQiDlfXfQN4jdvOiislMYoxhAcZMNY2tSAE5aTiCdGWzmbEF_NNJTzP4akLEj6ycATfBju75hWd4PHPyn&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo", "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=Ab43m-veGbXKSvhV7MVOSPVBx6uTdB9BtFGmgIFYaair79ZoXxvZviAFBSOB6WoOttZnmnftmhYeIJeXYWVH9wnzk-aPQvWyj3JMmdeLrQtHjzsNGHp7FG6UOBx4eyVbzODBawofGu7czoqb2jIZ66y-t2Ca5zHdBqqrzqEWj4uMBeHFW6DMFYOUFVwYgnlHQOZH1OL-pEYcbwmRFLAcRYtIPAzSgmioX1VItbWizZA_jRKEaqHWQKOBIUGCeJeV4Inu3pzrjfB9vGeqr3kJzuShuXP6hAlfJKUzVoSZ_G0Ponfzlw1xam7YaX85D8gCO1yG9sPiCbFis0_bpQ58X1sN5Ex43QfOXT1ab4IsZOkvnUFtf5lNTaAj1EKbolgsNrpuaBElaUqM8hJhpUispVRVkJnNCpWOtvWvyiPk-QD8Iuv_HbE&key=AIzaSyBkCmkDx5hbHSvUuyU3pH5l4vZuQTdQ6bo"], "reviews": [{"author": "Елена Трусова", "rating": 5, "date": "месяц назад", "text": "Здесь не один конкретный отель, а много апартаментов от разных хозяев. Поэтому отзывы могут кардинально отличаться)\nВ январе 2024 цена в сутки была около 40€, что очень низко по сравнению с другими странами, где номера/апартаменты такого размера и местоположения стоили около 200/300€ в сутки)\nЯ поселилась на каком-то высоком этаже на недельку, всё очень понравилось: и вид с балкона, и всё внутри)\nУборка номера занимала не больше 5-10 минут, потому что влетали 3-4 уборщицы, каждая занималась своей частью уборки = быстро, чисто и профессионально)\nНа крыше прекрасный бассейн с потрясающим видом на побережье!\nТонкости уже не помню, но помню, что я была довольна пребыванием в этом здании)\nРекомендую)"}, {"author": "Lina", "rating": 3, "date": "месяц назад", "text": "Лифт! Это самый большой минус этого отеля, который перекрывает все плюсы.  Живя на 37 этаже,  ждала лифт по 10 минут.\n\nНи разу не пришли за три дня убраться.\n\nПолотенца застиранные.\n\nПостельное приятное к телу.\n\nРасположение супер, близко к пляжу, кафешкам, магазинам. Очень шумно.\n\nБассейн холодный на 6эт. На последнем этаже толпа, так может зайти любой с улицы за копейки."}, {"author": "Максим Катющенко", "rating": 5, "date": "2 месяца назад", "text": "Выбрали данный отель через сервис Я. путешествия. Самолет прилетел слишком рано, в 7 утра мы уже были в отеле, к сожалению, отказались нас заселять, так как номер был занят, по правилам заезд в 14:00, ровно в это же время нас заселили.\n\nНомер не самый новый, но не было никакого криминала, как у других посетителей. Мы жили на 27 этаже с видом на море, номер был чистый. Кондиционер работает в двух режимах, лето и зима, также можно настроить скорость вентилятора, не мерзли и не было слишком жарко, на улице было +28 примерно. В номере две бутылки воды по 0.3 бесплатно каждый день и две бутылки 0.5 за 20к донгов в минибаре, расчет на выезде, берут залог 500к донг. Уборка раз в день после обеда, примерно в 11:00, когда все уже уходят.\n\nВ номере было тихо, живут в основном китайцы, очень мало русских. Весь шум был с улицы, так как рядом площадь, но шумно там только на выходных.\n\nЗавтраки нормальные, ориентированы на азиатов, но голодными не останетесь.\n\nРядом очень много кафе и магазинов, в 3 минутах магазин сапфир, где можно обменять валюту. К отелю всегда быстро приезжает такси и курьеры."}, {"author": "Александр Бурашников", "rating": 1, "date": "3 месяца назад", "text": "У нас было 2 бронирования: с 21.12 по 24.12.25 и с 30.12.25 по 8.12.2026. С первым все ок. Когда вернулись во второй раз нас ждал сюрприз. Мало того что рейс задержали на час и мы прибыли в отель к полуночи так еще на ресепшен сообщили что наша бронь отменена из-за какой-то ошибки отель не готов нас заселять. В итоге полночи спорили с персоналом и поддержкой букинг, затем все-таки дали номер в этом отеле, но только на одну ночь и не такой как мы бронировали, без вида на море. Утром продолжили общение с персоналом но продлить бронирование нам отказали, более того по выезде удержали 20000 донгов за бутылку воды - оказывается на полке вода бесплатная, а в холодильнике платная. Поддержка букинга переселила нас на следующий день в другой отель неподалеку, но цена была уже дороже и не было такого вида из окна. В общем отель Панорама крайне не рекомендую нам"}, {"author": "valery pilipenko", "rating": 3, "date": "2 месяца назад", "text": "Только для авантюристов, которые готовы, что по приезду их бронь отменят и скажут, что ничего не знают ;⁠) Так собственно и произошло. Пытались впарить по цене sea view вид на помойку, но хорошо я номер проверил. Когда уже стал уходить, объявилась хозяйка отмененного номера и сказала у нее есть другой. Номер был нормальным, поэтому взял его. Уборки нет, белье не меняют.\nЛифты это отдельный ад, жил 14м этаже, огромное количество времени уходило что бы спуститься-подняться. Если у вас этаж 20+, поздравляю, четверть отпуска вы проведёте в лифте 😂"}]}],
+            igReels: [{"thumbnail": "http://instagram.com/static/images/ico/favicon-200.png/ab6eff595bb1.png", "link": "https://www.instagram.com/stories/highlights/18404039212150167/"}, {"thumbnail": "http://instagram.com/static/images/ico/favicon-200.png/ab6eff595bb1.png", "link": "https://www.instagram.com/stories/highlights/18073118810103351/"}, {"thumbnail": "http://instagram.com/static/images/ico/favicon-200.png/ab6eff595bb1.png", "link": "https://www.instagram.com/stories/highlights/18207003232316313/"}, {"thumbnail": "http://instagram.com/static/images/ico/favicon-200.png/ab6eff595bb1.png", "link": "https://www.instagram.com/stories/highlights/18098414977586720/"}]
+        };
+
+        // ===== КАРУСЕЛЬ ФОТО =====
+        const HotelCarousel = ({ images, hotelName }) => {
+            const [current, setCurrent] = useState(0);
+            const scrollRef = useRef(null);
+            const total = images ? images.length : 0;
+
+            const goTo = (idx) => {
+                setCurrent(idx);
+                if (scrollRef.current) {
+                    scrollRef.current.scrollTo({ left: idx * scrollRef.current.offsetWidth, behavior: 'smooth' });
+                }
+            };
+
+            const handleScroll = () => {
+                if (scrollRef.current) {
+                    const idx = Math.round(scrollRef.current.scrollLeft / scrollRef.current.offsetWidth);
+                    setCurrent(idx);
+                }
+            };
+
+            if (!images || images.length === 0) {
+                return <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">Нет доступных фото</div>;
+            }
+
+            return (
+                <div className="relative w-full h-64">
+                    <div ref={scrollRef} onScroll={handleScroll}
+                         className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory h-full">
+                        {images.map((img, idx) => (
+                            <img key={idx} src={img}
+                                 className="w-full h-full object-cover snap-center shrink-0"
+                                 alt={`${hotelName} фото ${idx + 1}`} />
+                        ))}
+                    </div>
+                    {total > 1 && (
+                        <>
+                            {/* Счётчик */}
+                            <div className="absolute top-3 right-3 bg-black/40 rounded-xl px-2.5 py-1 text-white text-xs font-bold">
+                                {current + 1} / {total}
+                            </div>
+                            {/* Точки */}
+                            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                                {images.map((_, idx) => (
+                                    <div key={idx} onClick={() => goTo(idx)}
+                                         className={`rounded-full transition-all duration-200 cursor-pointer ${idx === current ? 'w-4 h-2 bg-white' : 'w-2 h-2 bg-white/50'}`} />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        // ===== ОВЕРЛЕЙ ОТЗЫВОВ =====
+        const ReviewOverlay = ({ isOpen, onClose, reviews }) => {
+            useEffect(() => {
+                document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+                if (window.lucide && isOpen) setTimeout(() => window.lucide.createIcons(), 50);
+                return () => { document.body.style.overflow = 'auto'; };
+            }, [isOpen]);
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-50 bg-white flex flex-col">
+                    <div className="flex justify-between items-center px-5 py-4 border-b border-gray-200 bg-white">
+                        <h3 className="text-xl font-black text-gray-900 italic">Отзывы гостей</h3>
+                        <button onClick={onClose} className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="x" className="w-6 h-6"></i>
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 bg-gray-50">
+                        {reviews && reviews.length > 0 ? reviews.map((rev, idx) => (
+                            <div key={idx} className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-base font-black text-gray-900">{rev.author}</span>
+                                    <span className="text-sm text-gray-400 font-semibold">{rev.date}</span>
+                                </div>
+                                <div className="flex mb-3 gap-0.5 text-amber-400">
+                                    {[...Array(5)].map((_, i) => <i key={i} data-lucide="star" className="w-4 h-4 fill-current"></i>)}
+                                </div>
+                                <p className="text-base text-gray-700 leading-relaxed italic">"{rev.text}"</p>
+                            </div>
+                        )) : (
+                            <div className="text-center text-gray-400 py-10">Отзывы появятся скоро</div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== ГЛАВНЫЙ КОМПОНЕНТ =====
+        const App = () => {
+            const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [isReviewsOpen]);
+
+            const getOrderLink = (hotelName) => {
+                const text = encodeURIComponent(`Здравствуйте! Хочу заказать тур в отель ${hotelName} по цене ${tourData.totalPrice}.`);
+                return `https://wa.me/${tourData.contact.whatsapp}?text=${text}`;
+            };
+
+            return (
+                <div className="max-w-md mx-auto bg-gray-50 min-h-screen pb-16 text-gray-900">
+
+                    {/* ШАПКА */}
+                    <header className="bg-white border-b border-gray-100 px-5 py-3 flex justify-between items-center sticky top-0 z-30 shadow-sm">
+                        <img src={tourData.logoPath} alt="Mango Tour" className="h-10 object-contain" />
+                        <div className="flex gap-2">
+                            <a href={tourData.contact.instagram} target="_blank" rel="noopener noreferrer"
+                               style={{background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'}}
+                               className="w-11 h-11 text-white flex items-center justify-center rounded-2xl shadow-sm">
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                </svg>
+                            </a>
+                            <a href={tourData.contact.facebook} target="_blank" rel="noopener noreferrer"
+                               className="w-11 h-11 bg-[#1877F2] text-white flex items-center justify-center rounded-2xl shadow-sm">
+                                <svg viewBox="0 0 32 32" fill="currentColor" className="w-8 h-8 ml-1 mt-1">
+                                    <path d="M21.95 5.005l-3.306-.004c-3.206 0-5.277 2.124-5.277 5.415v2.815h-3.328v3.95h3.328v10.584h4.091v-10.584h3.332l.532-3.95h-3.864v-2.316c0-1.12.31-1.884 1.916-1.884h2.054v-3.535c-.354-.047-1.574-.153-2.992-.153z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </header>
+
+                    <main className="px-4 pt-6 space-y-5">
+
+                        {/* СЕКЦИЯ ПЕРЕЛЁТА */}
+                        <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="bg-orange-500 px-6 py-5">
+                                <h2 className="text-3xl font-black text-white tracking-tight">{tourData.city}</h2>
+                            </div>
+                            <div className="flex divide-x divide-gray-100 border-b border-gray-100">
+                                <div className="flex-1 px-5 py-4">
+                                    <p className="text-base font-black text-gray-900">{tourData.dates}</p>
+                                </div>
+                                <div className="flex-1 px-5 py-4">
+                                    <p className="text-base font-black text-gray-900">{tourData.pax} чел.</p>
+                                </div>
+                            </div>
+                            <div className="divide-y divide-gray-100">
+                                {tourData.flights && tourData.flights.length > 0 ? (
+                                    tourData.flights.map((f, i) => (
+                                        <div key={i} className="px-5 py-4 flex items-center gap-4">
+                                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${f.type === 'туда' ? 'bg-orange-50' : 'bg-blue-50'}`}>
+                                                <i data-lucide="plane" className={`w-5 h-5 ${f.type === 'туда' ? 'text-orange-500' : 'text-blue-500 rotate-180'}`}></i>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-lg font-black text-gray-900">{f.depTime} — {f.arrTime}</p>
+                                                <p className="text-sm text-gray-500">{f.airline} · {f.number} · {f.from} – {f.to}</p>
+                                                {f.duration && <p className="text-xs text-gray-400">{f.duration}</p>}
+                                            </div>
+                                            <div className="shrink-0">
+                                                {f.baggage ? (
+                                                    <div className="bg-green-50 text-green-700 px-3 py-1 rounded-xl text-xs font-black italic">Багаж {f.baggage}</div>
+                                                ) : (
+                                                    <div className="bg-gray-50 text-gray-400 px-3 py-1 rounded-xl text-xs font-bold italic">Без багажа</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="px-5 py-4 text-center text-gray-400 text-sm italic">Данные о рейсах уточняются</div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* СЕКЦИЯ ОТЕЛЕЙ */}
+                        {tourData.hotels && tourData.hotels.map((hotel, i) => (
+                            <section key={i} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+
+                                {/* КАРУСЕЛЬ */}
+                                <HotelCarousel images={hotel.images} hotelName={hotel.name} />
+
+                                <div className="px-5 py-5 space-y-4">
+                                    {/* Название и локация */}
+                                    <div>
+                                        <h3 className="text-xl font-black text-gray-900">{hotel.name}</h3>
+                                        <div className="mt-1 border-l-4 border-orange-400 pl-3 uppercase tracking-tight text-xs font-bold text-gray-500">
+                                            {hotel.location}{hotel.stars ? ` · ${hotel.stars} звезд` : ''}
+                                        </div>
+                                    </div>
+
+                                    {/* Номер и питание */}
+                                    <div className="bg-gray-50 rounded-2xl p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                                                <i data-lucide="bed-double" className="w-5 h-5 text-orange-500"></i>
+                                            </div>
+                                            <div>
+                                                <p className="text-base font-black text-gray-900">{hotel.roomType}</p>
+                                                <p className="text-xs text-gray-500 italic uppercase font-bold">{hotel.mealPlan}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Первый отзыв */}
+                                    {hotel.reviews && hotel.reviews.length > 0 && (
+                                        <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 italic text-sm text-gray-700">
+                                            "{hotel.reviews[0].text}"
+                                        </div>
+                                    )}
+
+                                    {/* Кнопка все отзывы */}
+                                    <button onClick={() => setIsReviewsOpen(true)}
+                                            className="w-full py-3 border border-gray-200 rounded-2xl text-sm font-black text-orange-500 uppercase italic">
+                                        Все отзывы
+                                    </button>
+
+                                    {/* Цена и WhatsApp */}
+                                    <a href={getOrderLink(hotel.name)} target="_blank" rel="noopener noreferrer"
+                                       className="block bg-orange-500 rounded-3xl px-6 py-6 text-center shadow-lg active:scale-95 transition-all">
+                                        <p className="text-3xl font-black text-white italic tracking-tighter mb-4">{tourData.totalPrice.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p>
+                                        <div className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] rounded-2xl px-5 py-3.5 shadow-md">
+                                            <i data-lucide="message-circle" className="w-5 h-5 text-white"></i>
+                                            <span className="text-white font-black text-sm uppercase tracking-widest italic">Заказать в WhatsApp</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </section>
+                        ))}
+
+                        {/* СЕКЦИЯ REELS */}
+                        {tourData.igReels && tourData.igReels.length > 0 && (
+                            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-5">
+                                <h3 className="text-xl font-black text-gray-900 mb-4 italic">Видео обзоры</h3>
+                                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                                    {tourData.igReels.map((reel, idx) => (
+                                        <a key={idx} href={reel.link} target="_blank" rel="noopener noreferrer"
+                                           className="relative shrink-0 w-32 h-56 rounded-2xl overflow-hidden shadow-sm block">
+                                            <img src={reel.thumbnail}
+                                                 className="absolute inset-0 w-full h-full object-cover"
+                                                 alt="Видео отзыв" />
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                                <i data-lucide="play" className="w-10 h-10 text-white opacity-80"></i>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                    </main>
+
+                    {/* ОВЕРЛЕЙ ОТЗЫВОВ */}
+                    {tourData.hotels && tourData.hotels.length > 0 && (
+                        <ReviewOverlay
+                            isOpen={isReviewsOpen}
+                            onClose={() => setIsReviewsOpen(false)}
+                            reviews={tourData.hotels[0].reviews || []}
+                        />
+                    )}
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
