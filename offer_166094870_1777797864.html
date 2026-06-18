@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mango Tour - Ваше предложение</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const parseInjectedJson = (raw, fallback) => {
+            if (!raw || raw.includes("{{")) return fallback;
+            try { return JSON.parse(raw); } catch { return fallback; }
+        };
+
+        const fallbackFlights = [
+            { type: "туда", date: "2026.05.01", depTime: "21:35", arrTime: "00:25", duration: "04:50", baggage: "уточняется" },
+            { type: "обратно", date: "2026.05.05", depTime: "11:45", arrTime: "18:25", duration: "04:40", baggage: "уточняется" }
+        ];
+
+        const fallbackHotels = [
+            {
+                name: "Cicilia Danang Hotels & Spa",
+                stars: 4,
+                rating: 4.3,
+                location: "Дананг",
+                roomType: "Deluxe Twin with Window",
+                mealPlan: "Завтрак включен",
+                description: "Отель расположен в нескольких шагах от пляжа Ми Кхе. К услугам гостей панорамный бассейн на крыше, спа-центр и современные номера с видом на океан или город.",
+                images: [],
+                reviews: [
+                    {
+                        author: "Гость Google",
+                        rating: 5,
+                        date: "недавно",
+                        text: "Отличное расположение рядом с пляжем, приветливый персонал и чистые номера. Завтраки хорошие, на крыше приятный бассейн с видом. Для короткого отдыха в Дананге очень удобный вариант."
+                    }
+                ],
+                price: "2,650,000 KRW"
+            },
+            {
+                name: "ADELA BOUTIQUE HOTEL",
+                stars: 4,
+                rating: 4.5,
+                location: "Дананг",
+                roomType: "Deluxe Twin City View",
+                mealPlan: "завтрак не включен",
+                description: "Стильный бутик-отель с уютной атмосферой, расположенный в туристическом районе. Предлагает комфортабельные номера с современным дизайном и качественный сервис.",
+                images: [],
+                reviews: [
+                    {
+                        author: "Гость Google",
+                        rating: 5,
+                        date: "недавно",
+                        text: "Хороший бутик-отель в удобном районе. Номер был аккуратный, персонал помогал с вопросами, до кафе и пляжа легко добраться пешком. Атмосфера спокойная."
+                    }
+                ],
+                price: "2,550,000 KRW"
+            }
+        ];
+
+        const fallbackReels = [
+            {
+                thumbnail: "reel_1.png",
+                link: "https://www.instagram.com/stories/highlights/18404039212150167/"
+            },
+            {
+                thumbnail: "reel_2.png",
+                link: "https://www.instagram.com/stories/highlights/18073118810103351/"
+            },
+            {
+                thumbnail: "reel_3.png",
+                link: "https://www.instagram.com/stories/highlights/18207003232316313/"
+            }
+        ];
+
+        const injectedCity = String.raw`НЯЧАНГ`;
+        const injectedDates = String.raw`2026.05.10 - 2026.05.15`;
+        const injectedPax = String.raw`2`;
+        const injectedTotalPrice = String.raw`от 1,250,000 KRW`;
+        const injectedIncluded = String.raw``;
+
+        const tourData = {
+            city: injectedCity.includes("{{") ? "ДАНАНГ" : injectedCity,
+            dates: injectedDates.includes("{{") ? "2026.05.01 - 2026.05.05" : injectedDates,
+            pax: Number(injectedPax.includes("{{") ? 2 : injectedPax),
+            totalPrice: injectedTotalPrice.includes("{{") ? "от 2,550,000 KRW" : injectedTotalPrice,
+            included: injectedIncluded.includes("{{") ? "Перелет, проживание, Трансфер, Страховка" : injectedIncluded,
+            termsNote: "После покупки тура любые изменения или отмена поездки производятся со штрафами. Размер штрафов зависит от условий авиакомпании, отеля и сроков отказа (за сколько дней до поездки).",
+            logoPath: "logo.png",
+            contact: {
+                whatsapp: "821099752550",
+                instagram: "https://www.instagram.com/mango.tour_?utm_source=qr&igsh=MWoyZDZ6NnZrcXg3cA==",
+                facebook: "https://www.facebook.com/share/1FHwMCpMCN/?mibextid=wwXIfr"
+            },
+            flights: parseInjectedJson(String.raw`[{"date": "2026.05.10", "depTime": "06:45", "arrTime": "09:35", "duration": "4 ч. 50 мин.", "baggage": "нет", "airline": "", "from": "", "to": "", "number": "", "type": "туда"}, {"date": "2026.05.15", "depTime": "00:05", "arrTime": "07:10", "duration": "5 ч. 05 мин.", "baggage": "нет", "airline": "", "from": "", "to": "", "number": "", "type": "обратно"}]`, fallbackFlights),
+            hotels: parseInjectedJson(String.raw`[{"name": "Vinpearl Beachfront Nha Trang", "stars": 5, "rating": 0.0, "ratingText": "", "location": "Нячанг", "roomType": "Двухместная Студия с 2 односпальными кроватями (Studio Twin)", "mealPlan": "Завтрак не включен", "description": "Добро пожаловать в Vinpearl Beachfront Nha Trang — оазис роскоши и комфорта в сердце живописного Нячанга, Вьетнам. Этот 5-звездочный отель предлагает атмосферу уюта и изысканности с видом на безграничные морские просторы.\n\nИдеально расположенный в центре города, Vinpearl Beachfront Nha Trang находиться в шаговой доступности от пляжей и достопримечательностей, что делает его прекрасным выбором как для романтических пар, так и для семей.\n\nУникальные удобства отеля включают в себя два бассейна: открытый с баром у кромки воды и закрытый для всесезонного отдыха. Для поддержания физической формы предусмотрен современный фитнес-центр с потрясающими видами на океан.\n\nРасслабьтесь и восстановите силы в спа-салоне с массажем и саунами. Для любителей активного отдыха отель предлагает частный пляж с множеством водных развлечений.\n\nКомфортные номера с балконами и элегантным дизайном оснащены всем необходимым, включая бесплатный Wi-Fi и круглосуточное обслуживание.\n\nГурманов порадует ресторан с разнообразием блюд местной и международной кухни, а также завтрак в формате «шведский стол», который станет идеальным началом дня.\n\nVinpearl Beachfront Nha Trang предлагает первоклассный сервис и внимательное отношение персонала, что подтверждается высокими оценками гостей. Насладитесь незабываемым отдыхом, погрузившись в атмосферу роскоши и наслаждения.", "amenities": [], "images": [], "reviews": [{"author": "Galina", "text": "Отличный отель, прямо в центре города. Рядом есть всё: кафе, магазины, массажные салоны, прачечная. Номер просторный, с великолепным балконом и потрясающим видом. Матрасы, постельное белье и подушки на высоте. Завтраки тоже понравились, особенно суп фо бо — лучший в городе! Персонал, говорящий по-английски, молодцы: быстро решают все вопросы. Сын забыл телефон в самолёте, обратились на ресепшен, парень позвонил в аэропорт — телефон нашли. Нина, говорящая по-русски, просто умница: внимательна, вежлива, всегда с улыбкой готова помочь. У нас холодильник сломался, сказали Нине, и в тот же день нам принесли новый, большой с морозилкой. Нина, огромное спасибо! Отель стоит своих денег, рекомендуем и вернёмся.", "rating": 9.6, "date": "11 ночей, январь 2026 г."}, {"author": "Serdar", "text": "Остановились с женой с 10 по 18 сентября. Сначала дали апартаменты с боковым видом на море, попросили номер с прямым видом — без проблем переселили. Качество чувствуется в каждой детали. Постельное белье отличное: несмотря на сырость климата, всегда оставалось сухим. Матрасы удобные, утюг и гладильная доска в номере бесплатно. Персонал вежливый и почтительный. Завтраки разнообразные, всё на уровне. Рассматривали несколько отелей в этой ценовой категории, выбрали этот — и не жалеем ни секунды.", "rating": 10.0, "date": "4 ночей, сентябрь 2025 г."}, {"author": "Sergey", "text": "Останавливались в двухспальном номере на 32 этаже. Вид на море и дорогу из панорамных окон впечатляет. Но окна и ограждение балкона были грязными — это расстроило. Внутри номер чистый, всё необходимое есть: косметика, халаты. Кухня непонятна: для готовки ничего нет, только чайник и стаканы. Холодильник сломался при заселении, но быстро заменили. Кондиционер отличный: комната охлаждается равномерно. Завтрак разнообразный, не хватило только европейских каш. Бассейн на 6-м этаже показался холодным — ветрено. У отеля есть шезлонги и сервис полотенец на пляже, очень удобно. В целом отдыхом довольны!", "rating": 9.6, "date": "6 ночей, апрель 2025 г."}, {"author": "Natalia", "text": "Отель понравился, хоть и не новый, но уровень чувствуется. Комфортабельный номер, удобные кровати, чистота. Завтраки великолепны, уходить не хотелось. Единственный минус — шумно ночью из-за центра города, беруши не спасают. Подумайте, перед тем как брать номер с видом на море, может лучше во двор, будет тише.", "rating": 9.6, "date": "3 ночей, апрель 2025 г."}, {"author": "Irina", "text": "Отель в отличном месте: рядом магазины, к кафе и аптекам пешком. Пляж через дорогу, отельные лежаки с полотенцами. Правда, шезлонгов мало для такого большого отеля. Завтраки замечательные, каждый найдет что поесть. Кофемашин мало — очередь. В комнатах чисто, все принадлежности есть: халаты, тапочки, мини-кухня с чайником и холодильником. Нам очень понравилось, приедем в следующем году!", "rating": 9.2, "date": "10 ночей, май 2025 г."}], "price": "1,600,000 KRW"}, {"name": "Comodo Nha Trang Hotel", "stars": 4, "rating": 8.8, "ratingText": "Отлично", "location": "Нячанг", "roomType": "Senior Deluxe Room Twin Beds", "mealPlan": "Завтрак включен", "description": "Добро пожаловать в Comodo Nha Trang Hotel — оазис комфорта и уюта в самом сердце Вьетнама. Всего в нескольких шагах от центра города, он предлагает идеальное сочетание удобства и современности.\n\nОтель насчитывает 241 просторный номер, многие из которых открывают великолепные виды на море. Гостям предоставляется все для комфорта: от кондиционеров и мини-баров до бесплатного Wi-Fi. Семейный отдых станет особенно приятным благодаря бесплатному размещению детей до 5 лет.\n\nЛюбители активного отдыха оценят современный фитнес-центр и два бассейна — открытый и закрытый, которые подходят как для занятий спортом, так и для отдыха. После активного дня релаксация гарантирована в нашем спа-салоне или стильном баре с разнообразными напитками.\n\nЕжедневные завтраки шведский стол подарят бодрое начало дня, а внимательный персонал сделает ваше пребывание максимально комфортным. Благодаря удобной транспортной доступности и близости к главному пляжу, отель станет отличной отправной точкой для изучения Нячанга. Discover the charm of Comodo Nha Trang Hotel!", "amenities": [], "images": [], "reviews": [{"author": "Alena", "text": "Персонал в отеле просто замечательный и всегда готов помочь. Администратор без проблем отменила моё ошибочное бронирование без финансовых потерь. Парень помог донести чемоданы в номер и рассказал по пути, как пользоваться лифтом, где находятся СПА и бассейн и так далее. Атмосфера просто заботливая! Мы жили в люксе на 23 этаже — вид из ванной комнаты просто потрясающий. Напор воды хороший, температура тоже комфортная! Предоставляют халаты, полотенца и все необходимые принадлежности для душа. В ресторане тоже шикарный вид, еда классическая и простая, но очень вкусная. На завтрак давали спелую и вкусную папайю — это было восхитительно! Жаль, что нет опции «завтрак в номер». Хотелось бы расслабиться в ванной и позавтракать. В выходные из кафе снизу слышна живая музыка. Но к полуночи становится тихо. Отличный отель!", "rating": 10.0, "date": "6 ночей, февраль 2025 г."}, {"author": "Sergio", "text": "Отличный отель! Номер с балконом и видом на пляж просто супер! Завтраки, в принципе, стандартные, но очень достойные. Самое классное — это набережная и пляж! Никогда не видел такого чистого городского пляжа! На последнем этаже бассейн с захватывающим видом, и там же есть СПА. Лучше массажа я ни разу не получал. Очень рекомендую!", "rating": 10.0, "date": "5 ночей, март 2025 г."}, {"author": "Елена", "text": "Отель неплохо расположен, напротив находится бар \"Луизиана\", пляж хороший, людей немного, как в центре. Номер люкс на 25 этаже большой и с красивым видом, но на стенах есть пятна, а матрас слишком жесткий.", "rating": 7.6, "date": "2 ночей, ноябрь 2025 г."}, {"author": "Maksim", "text": "Отель отличный, удачно расположен (немного в стороне от главной улицы, поэтому тише), чистые и комфортные кровати с мягкими подушками. Рекомендую брать номера с панорамным видом на море — они супер. Единственное, что огорчило, — при выезде заставили оплатить бар, которым мы не пользовались (сказали, что бутылка была открыта). Мелочь, но осадочек остался.", "rating": 9.6, "date": "8 ночей, июнь 2024 г."}, {"author": "TATYANA", "text": "Расположение, сервис, завтраки — всё на уровне! Соотношение цены и качества отличное! Туристов много даже в низкий сезон! Номера немного тесноваты. Через дорогу бар \"Луизиана\" с бассейном, душем, вкусным пивом и шезлонгами — можно отлично провести там время!", "rating": 7.2, "date": "3 ночей, октябрь 2025 г."}, {"author": "Elmira", "text": "Отличное расположение, чистые номера. Завтрак отличный. Обслуживание на хорошем уровне, персонал отзывчивый. Рекомендую!", "rating": 10.0, "date": "7 ночей, октябрь 2024 г."}, {"author": "Alena", "text": "Отель классный, но персонал действительно решил мою проблему. Это редкость!", "rating": 10.0, "date": "февраль 2025 г., 1 ночь"}, {"author": "Jamil", "text": "Хорошее расположение. Наличие балкона. Море рядом. Вид из окна хороший, приличный завтрак.", "rating": 7.6, "date": "5 ночей, июль 2024 г."}, {"author": "Jamil", "text": "Хорошее расположение, завтрак достойный. Номер с балконом, хороший вид. Море рядом. Уборка плохая... В целом отель нам понравился.", "rating": 6.8, "date": "3 ночей, июль 2024 г."}, {"author": "Артем", "text": "Мы жили в красивом и просторном номере \"suite panorama\". Вообще было довольно чисто, но иногда можно было заметить грязь, например, на окнах. Из других номеров люди жаловались на плохую уборку и шум. У нас был шум только с улицы, соседей не слышали. Завтраки чисто азиатские, меню всегда одинаковое, есть омлет, десерты, фрукты, йогурт. Вполне достойно, но не совсем привычно. Море близко, но собственного пляжа нет. Рядом с центром, такси очень дешёвое. Рядом — шумный бар, который мы слышали два раза в неделю до поздней ночи очень громко, хотя жили на 19 этаже. Хорошее СПА, персонал неплохой, но не слишком полезный, у портье слабая работа. Впечатление в целом позитивное, потрясающий вид. Я считаю, что стоит остановиться в этом отеле в хорошем номере, так как их лучше убирают и там тише.", "rating": 7.2, "date": "14 ночей, февраль 2025 г."}], "price": "1,400,000 KRW"}, {"name": "Emerald Bay Hotel & Spa", "stars": 4, "rating": 8.8, "ratingText": "Отлично", "location": "Нячанг", "roomType": "Улучшенный двухместный номер с 2 отдельными кроватями", "mealPlan": "Завтрак включен", "description": "Добро пожаловать в Emerald Bay Hotel and Spa — изысканный пятизвездочный отель в сердце Нячанга, Вьетнам. Идеально расположенный в одном километре от центра города и в 35 минутах от аэропорта, этот отель станет вашим идеальным уголком для комфортного отдыха или деловой поездки.\n\nОтель предлагает 220 стильных номеров, созданных для вашего комфорта. Насладитесь великолепными видами на океан или город из вашего номера, независимо от его категории. Для полного расслабления посетите современный фитнес-центр, наслаждайтесь частным пляжем и восхититесь бассейном с баром у воды.\n\nВ Emerald Bay вас ждут кулинарные шедевры: ресторан предлагает разнообразные блюда, будь то вьетнамская кухня на завтрак или континентальные деликатесы. Для уединения и удобства доступно круглосуточное обслуживание номеров.\n\nОтель также предоставляет трансфер из аэропорта и аренду автомобилей, идеально сочетая комфорт с удобством. Если вы хотите исследовать гармонию местной культуры, район Лộc Тхо с его парками и рынками удовлетворит ваше любопытство и жажду открытий.\n\nEmerald Bay Hotel and Spa — это идеальное место для тех, кто ценит сочетание высочайшего уровня сервиса, доступности, комфорта и роскоши. Здесь ваш отдых станет поистине незабываемым!", "amenities": [], "images": [], "reviews": [{"author": "Olha", "text": "Отель в целом неплохой, но ожидания были выше из-за описания и пяти звезд на сайтах. Из минусов: 1) Я имел приоритет на ранее заселение, но в итоге попал в номер даже позже обычного на 30 минут. 2) Хотя мне повысили категорию номера, что было приятно, сам номер оказался небольшим, с крохотным балконом (трудно представить, каковы меньшие номера), и у меня были претензии. Дверь шкафа не могла открываться полностью из-за расположения возле входной двери (я бы предложил просто убрать дверь шкафа), ремонт выполнен быстро, например, потолок грубо замазан; нет мягкого освещения для ночи, приходилось оставлять свет в туалете, но прозрачные стены мешали спать. 3) Завтраки разнообразные, много мясных блюд, но они были или очень жареными, или острыми, ел только вареные или сырые овощи; не было сыра, орехов, сладости к чаю каждый день одинаковые и тоже не по вкусу. Хотелось бы больше разнообразия для иностранцев. 4) При заселении дают инструкцию, напоминающую угрозу, с требованием пересчитывать полотенца и халаты каждый день после уборки, иначе штрафы, если что-то пропадет или сломается. Это звучит очень резко. 5) Шезлонгов всего пара десятков на пару отелей, но можно взять полотенце у пляжа. Из плюсов: 1) Большой холл и дружелюбный персонал. 2) Приятный спа и массажа. 3) Вкусная еда в ресторане. 4) Прекрасный вид на море из номеров.", "rating": 8.4, "date": "4 ночей, июль 2025 г."}, {"author": "GEORGII", "text": "Удалось забронировать отель за 22 доллара в сутки, и это был отличный вариант за такие деньги. Отель новый, расположен во дворе, так что шум дороги не доносится. С одной стороны это тишина, с другой - номера с видом на море на самом деле выходят на стену другого отеля. Нам повезло: наши окна выходили на пустырь и горы, и это куда приятнее. Завтрак проходит с 6 до 10 утра, достойный набор блюд, но кофемашины с зерновым кофе нет, странно, учитывая, что страна известна своим кофе. Кровать и постельные принадлежности превосходные, подушки особенно хорошие. Уборка на 4, не идеальная, но приемлемая. Местоположение великолепное, на южной окраине города, до Лотоса 15 минут пешком, рядом большой торговый центр и много заведений. Справа от отеля кафе 'Кочевник' от киргизов, слева 'Морячок' от русских. Соотношение цены и качества блюд отличное. В целом, это адекватный выбор за такие деньги.", "rating": 10.0, "date": "18 ночей, апрель 2025 г."}, {"author": "Роман", "text": "Номер Deluxe City View просторный, с большой удобной кроватью и всеми удобствами. Уборка ежедневная, чистота и порядок. Особенно понравился вид на город. Местоположение идеальное, буквально минута до пляжа, много магазинов рядом. Персонал вежливый и внимательный, всегда готов помочь. Завтраки разнообразные, есть как европейские, так и азиатские блюда. Бассейн на крыше - отличный бонус, особенно вечером с видом на ночной город. Wi-Fi стабильно работает по всему отелю. Спа-салон впечатлил качеством услуг и разумными ценами. Рекомендую этот отель всем, кто ищет комфортный отдых. Планируем вернуться сюда!", "rating": 9.6, "date": "16 ночей, апрель 2025 г."}, {"author": "Ангелина", "text": "Отель мне понравился. Вкусные и разнообразные завтраки. При заезде меня поселили раньше бесплатно, хоть я и приехала раньше. Пока ждала, мне предложили свежевыжатый арбузный сок. В номере была приветственная корзина с фруктами. Чистота была обеспечена, везде приятно пахло. Полотенца меняли, одноразовые мелочи пополняли ежедневно. Персонал улыбчивый и вежливый, всегда откроют дверь и помогут с багажом.", "rating": 8.8, "date": "9 ночей, октябрь 2025 г."}, {"author": "Дарья", "text": "Очень вежливый персонал, уборку делают хорошо. Единственное, мне не понравились завтраки, выбор ограничен. Бассейн небольшой, всего три шезлонга на отель. На пляже шезлонгов тоже мало, но можно взять полотенце и отдохнуть там. Номер делюкс хороший, и я получила немного фруктов в подарок.", "rating": 9.6, "date": "8 ночей, январь 2026 г."}, {"author": "Svetlana", "text": "Отличное место. Главное, что есть кнопочка «не беспокоить», потому что в предыдущем отеле нас будили в 9 утра для уборки. Завтраки были не очень вкусными, спортзал хороший, бассейн был холодный, но по проживанию все супер. Тихо, спокойно, уютно.", "rating": 10.0, "date": "2 ночей, январь 2026 г."}, {"author": "Игорь", "text": "Отличный отель. Хорошая цена. Первая линия. Персонал очень любезный. Отдельное спасибо Нат.", "rating": 10.0, "date": "7 ночей, февраль 2026 г."}, {"author": "Hanna", "text": "Все было прекрасно. Завтраки замечательные, европейцам есть из чего выбрать. Для ребенка двух лет тоже нашлось, что покушать.", "rating": 9.6, "date": "14 ночей, июнь 2025 г."}, {"author": "vladimir", "text": "Персонал на стойке регистрации не выполнил условия ваучера по раннему заезду и позднему выезду. В остальном отель вполне хороший.", "rating": 6.0, "date": "февраль 2026 г., 1 ночь"}, {"author": "Chingis", "text": "Все отлично. Понравился персонал и завтрак.", "rating": 10.0, "date": "декабрь 2025 г., 1 ночь"}], "price": "1,250,000 KRW"}]`, fallbackHotels),
+            igReels: parseInjectedJson(String.raw`[{"thumbnail": "https://raw.githubusercontent.com/mangotour/Offers/main/reel_1.png", "link": "https://www.instagram.com/stories/highlights/18404039212150167/"}, {"thumbnail": "https://raw.githubusercontent.com/mangotour/Offers/main/reel_2.png", "link": "https://www.instagram.com/stories/highlights/18073118810103351/"}, {"thumbnail": "https://raw.githubusercontent.com/mangotour/Offers/main/reel_3.png", "link": "https://www.instagram.com/stories/highlights/18207003232316313/"}, {"thumbnail": "https://raw.githubusercontent.com/mangotour/Offers/main/reel_4.png", "link": "https://www.instagram.com/stories/highlights/18098414977586720/"}]`, fallbackReels)
+        };
+
+        // ===== КАРУСЕЛЬ ФОТО =====
+        const HotelCarousel = ({ images, hotelName }) => {
+            const [current, setCurrent] = useState(0);
+            const scrollRef = useRef(null);
+            const total = images ? images.length : 0;
+
+            const goTo = (idx) => {
+                setCurrent(idx);
+                if (scrollRef.current) {
+                    scrollRef.current.scrollTo({ left: idx * scrollRef.current.offsetWidth, behavior: 'smooth' });
+                }
+            };
+
+            const handleScroll = () => {
+                if (scrollRef.current) {
+                    const idx = Math.round(scrollRef.current.scrollLeft / scrollRef.current.offsetWidth);
+                    setCurrent(idx);
+                }
+            };
+
+            if (!images || images.length === 0) {
+                return <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">Нет доступных фото</div>;
+            }
+
+            return (
+                <div className="relative w-full h-64">
+                    <div ref={scrollRef} onScroll={handleScroll}
+                         className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory h-full">
+                        {images.map((img, idx) => (
+                            <img key={idx} src={img}
+                                 className="w-full h-full object-cover snap-center shrink-0"
+                                 alt={`${hotelName} фото ${idx + 1}`} />
+                        ))}
+                    </div>
+                    {total > 1 && (
+                        <>
+                            {/* Счётчик */}
+                            <div className="absolute top-3 right-3 bg-black/40 rounded-xl px-2.5 py-1 text-white text-xs font-bold">
+                                {current + 1} / {total}
+                            </div>
+                            {/* Точки */}
+                            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                                {images.map((_, idx) => (
+                                    <div key={idx} onClick={() => goTo(idx)}
+                                         className={`rounded-full transition-all duration-200 cursor-pointer ${idx === current ? 'w-4 h-2 bg-white' : 'w-2 h-2 bg-white/50'}`} />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        // ===== ОВЕРЛЕЙ ОТЗЫВОВ =====
+        const ReviewText = ({ text }) => {
+            const [expanded, setExpanded] = useState(false);
+            if (!text) return null;
+            const canExpand = text.length > 140;
+
+            return (
+                <div>
+                    <p
+                        className="text-base text-gray-700 leading-relaxed"
+                        style={expanded ? {} : { maxHeight: '4.8em', overflow: 'hidden' }}
+                    >
+                        "{text}"
+                    </p>
+                    {canExpand && (
+                        <button
+                            onClick={() => setExpanded(!expanded)}
+                            className="mt-2 text-sm font-black text-orange-500 uppercase"
+                        >
+                            {expanded ? 'Скрыть' : 'Читать дальше'}
+                        </button>
+                    )}
+                </div>
+            );
+        };
+
+        const ReviewOverlay = ({ isOpen, onClose, reviews }) => {
+            useEffect(() => {
+                document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+                if (window.lucide && isOpen) setTimeout(() => window.lucide.createIcons(), 50);
+                return () => { document.body.style.overflow = 'auto'; };
+            }, [isOpen]);
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-50 bg-white flex flex-col">
+                    <div className="flex justify-between items-center px-5 py-4 border-b border-gray-200 bg-white">
+                        <h3 className="text-xl font-black text-gray-900 italic">Отзывы гостей</h3>
+                        <button onClick={onClose} className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="x" className="w-6 h-6"></i>
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 bg-gray-50">
+                        {reviews && reviews.length > 0 ? reviews.map((rev, idx) => (
+                            <div key={idx} className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <span className="text-base font-black text-gray-900 block">{rev.author}</span>
+                                        <span className="text-xs text-gray-400 font-semibold">{rev.date}</span>
+                                    </div>
+                                    <div className="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-2xl text-sm font-black flex items-center gap-1 shadow-sm">
+                                        <i data-lucide="star" className="w-4 h-4 fill-current"></i>
+                                        Оценка: {Number(rev.rating || 10).toFixed(1).replace('.0', '')}/10
+                                    </div>
+                                </div>
+                                <ReviewText text={rev.text} />
+                            </div>
+                        )) : (
+                            <div className="text-center text-gray-400 py-10">Отзывы появятся скоро</div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== ГЛАВНЫЙ КОМПОНЕНТ =====
+        const App = () => {
+            const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+            const [activeReviews, setActiveReviews] = useState([]);
+
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [isReviewsOpen]);
+
+            const getOrderLink = (hotel) => {
+                const flightLines = (tourData.flights || []).map((flight) => {
+                    const label = flight.type ? flight.type.toUpperCase() : 'РЕЙС';
+                    const date = flight.date ? `${flight.date} ` : '';
+                    const time = [flight.depTime, flight.arrTime].filter(Boolean).join(' - ');
+                    return `${label}: ${date}${time}`.trim();
+                }).filter(Boolean);
+                const details = [
+                    `Здравствуйте! Хочу заказать тур в отель ${hotel.name} по цене ${hotel.price || tourData.totalPrice}.`,
+                    tourData.dates ? `Даты тура: ${tourData.dates}.` : '',
+                    ...flightLines
+                ].filter(Boolean).join('\n');
+                const text = encodeURIComponent(details);
+                return `https://wa.me/${tourData.contact.whatsapp}?text=${text}`;
+            };
+
+            const openReviews = (reviews) => {
+                setActiveReviews(reviews || []);
+                setIsReviewsOpen(true);
+            };
+
+            return (
+                <div className="max-w-md mx-auto bg-gray-50 min-h-screen pb-16 text-gray-900">
+
+                    {/* ШАПКА */}
+                    <header className="relative bg-white border-b border-gray-100 px-5 py-3 flex justify-between items-center sticky top-0 z-30 shadow-sm">
+                        <div className="w-11 h-11 rounded-2xl shadow-sm overflow-hidden bg-white flex items-center justify-center shrink-0">
+                            <img src={tourData.logoPath} alt="Mango Tour" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="absolute left-1/2 -translate-x-1/2 text-center text-base font-black text-yellow-400 tracking-widest whitespace-nowrap">MANGO TOUR</div>
+                        <div className="flex gap-2 justify-end">
+                            <a href={tourData.contact.instagram} target="_blank" rel="noopener noreferrer"
+                               style={{background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'}}
+                               className="w-11 h-11 text-white flex items-center justify-center rounded-2xl shadow-sm">
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                </svg>
+                            </a>
+                            <a href={tourData.contact.facebook} target="_blank" rel="noopener noreferrer"
+                               className="w-11 h-11 bg-[#1877F2] text-white flex items-center justify-center rounded-2xl shadow-sm">
+                                <svg viewBox="0 0 32 32" fill="currentColor" className="w-8 h-8 ml-1 mt-1">
+                                    <path d="M21.95 5.005l-3.306-.004c-3.206 0-5.277 2.124-5.277 5.415v2.815h-3.328v3.95h3.328v10.584h4.091v-10.584h3.332l.532-3.95h-3.864v-2.316c0-1.12.31-1.884 1.916-1.884h2.054v-3.535c-.354-.047-1.574-.153-2.992-.153z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </header>
+
+                    <main className="px-4 pt-6 space-y-5">
+
+                        {/* СЕКЦИЯ ПЕРЕЛЁТА */}
+                        <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="bg-orange-500 px-6 py-5">
+                                <h2 className="text-3xl font-black text-white tracking-tight">{tourData.city}</h2>
+                            </div>
+                            <div className="flex divide-x divide-gray-100 border-b border-gray-100">
+                                <div className="flex-1 px-5 py-4">
+                                    <p className="text-base font-black text-gray-900">{tourData.dates}</p>
+                                </div>
+                                <div className="flex-1 px-5 py-4">
+                                    <p className="text-base font-black text-gray-900">{tourData.pax} чел.</p>
+                                </div>
+                            </div>
+                            <div className="divide-y divide-gray-100">
+                                {tourData.flights && tourData.flights.length > 0 ? (
+                                    tourData.flights.map((f, i) => (
+                                        <div key={i} className="px-5 py-4 flex items-center gap-4">
+                                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${f.type === 'туда' ? 'bg-orange-50' : 'bg-blue-50'}`}>
+                                                <i data-lucide="plane" className={`w-5 h-5 ${f.type === 'туда' ? 'text-orange-500' : 'text-blue-500 rotate-180'}`}></i>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-lg font-black text-gray-900">{f.depTime} — {f.arrTime}</p>
+                                                {(() => {
+                                                    const flightInfo = [f.airline, f.number].filter(Boolean).join(' · ');
+                                                    const route = [f.from, f.to].filter(Boolean).join(' – ');
+                                                    const details = [flightInfo, route].filter(Boolean).join(' · ');
+                                                    return details ? <p className="text-sm text-gray-500">{details}</p> : null;
+                                                })()}
+                                                {f.duration && <p className="text-xs text-gray-400">{f.duration}</p>}
+                                            </div>
+                                            <div className="shrink-0">
+                                                {f.baggage ? (
+                                                    <div className="bg-green-50 text-green-700 px-3 py-1 rounded-xl text-xs font-black italic">Багаж {f.baggage}</div>
+                                                ) : (
+                                                    <div className="bg-gray-50 text-gray-400 px-3 py-1 rounded-xl text-xs font-bold italic">Без багажа</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="px-5 py-4 text-center text-gray-400 text-sm italic">Данные о рейсах уточняются</div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* СЕКЦИЯ ОТЕЛЕЙ */}
+                        {tourData.hotels && tourData.hotels.map((hotel, i) => (
+                            <section key={i} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+
+                                {/* КАРУСЕЛЬ */}
+                                <HotelCarousel images={hotel.images} hotelName={hotel.name} />
+
+                                <div className="px-5 py-5 space-y-4">
+                                    {/* Название и локация */}
+                                    <div>
+                                        <h3 className="text-xl font-black text-gray-900">{hotel.name}</h3>
+                                        <div className="mt-2 border-l-4 border-orange-400 pl-3">
+                                            <div className="uppercase tracking-tight text-xs font-bold text-gray-500 mb-1">
+                                                {hotel.location}{hotel.stars ? ` · ${hotel.stars} звезд` : ''}
+                                            </div>
+                                            {hotel.rating > 0 && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-sm font-black">{hotel.rating.toFixed(1)}</span>
+                                                    <span className="text-sm font-bold text-gray-800">{hotel.ratingText}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {hotel.description && (
+                                        <p className="text-sm text-gray-700 leading-relaxed">{hotel.description}</p>
+                                    )}
+
+                                    {/* Номер и питание */}
+                                    <div className="bg-gray-50 rounded-2xl p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                                                <i data-lucide="bed-double" className="w-5 h-5 text-orange-500"></i>
+                                            </div>
+                                            <div>
+                                                <p className="text-base font-black text-gray-900">{hotel.roomType}</p>
+                                                <p className="text-xs text-gray-500 italic uppercase font-bold">Питание</p>
+                                                <p className="text-sm text-gray-700 font-bold">{hotel.mealPlan}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {tourData.included && (
+                                        <div className="bg-green-50 border border-green-100 rounded-2xl p-4">
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0">
+                                                    <i data-lucide="check-circle" className="w-5 h-5 text-green-600"></i>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-green-700 uppercase font-black mb-1">Включено в стоимость</p>
+                                                    <p className="text-sm text-gray-700 font-semibold leading-relaxed">{tourData.included}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Первый отзыв */}
+                                    {hotel.reviews && hotel.reviews.length > 0 && (
+                                        <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 text-sm text-gray-700">
+                                            <ReviewText text={hotel.reviews[0].text} />
+                                        </div>
+                                    )}
+
+                                    {/* Кнопка все отзывы */}
+                                    <button onClick={() => openReviews(hotel.reviews)}
+                                            className="w-full py-3 border border-gray-200 rounded-2xl text-sm font-black text-orange-500 uppercase italic">
+                                        Все отзывы
+                                    </button>
+
+                                    {/* Цена и WhatsApp */}
+                                    <a href={getOrderLink(hotel)} target="_blank" rel="noopener noreferrer"
+                                       className="block bg-orange-500 rounded-3xl px-6 py-6 text-center shadow-lg active:scale-95 transition-all">
+                                        <p className="text-3xl font-black text-white tracking-tighter mb-4">{hotel.price || tourData.totalPrice}</p>
+                                        <div className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] rounded-2xl px-5 py-3.5 shadow-md">
+                                            <i data-lucide="message-circle" className="w-5 h-5 text-white"></i>
+                                            <span className="text-white font-black text-base uppercase tracking-widest">Заказать в WhatsApp</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </section>
+                        ))}
+
+                        {/* СЕКЦИЯ REELS */}
+                        {tourData.igReels && tourData.igReels.length > 0 && (
+                            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-5">
+                                <h3 className="text-xl font-black text-gray-900 mb-4 uppercase">Отзывы наших туристов</h3>
+                                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                                    {tourData.igReels.map((reel, idx) => (
+                                        <a key={idx} href={reel.link} target="_blank" rel="noopener noreferrer"
+                                           className="relative shrink-0 w-32 h-56 rounded-2xl overflow-hidden shadow-sm block">
+                                            <img src={reel.thumbnail}
+                                                 className="absolute inset-0 w-full h-full object-cover"
+                                                 alt="Видео отзыв" />
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                                <i data-lucide="play" className="w-10 h-10 text-white opacity-80"></i>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {tourData.termsNote && (
+                            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-5">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                                        <i data-lucide="file-text" className="w-5 h-5 text-orange-500"></i>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-black text-gray-900 uppercase mb-2">Изменения и отмена</h3>
+                                        <p className="text-sm text-gray-700 leading-relaxed">{tourData.termsNote}</p>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+
+                    </main>
+
+                    {/* ОВЕРЛЕЙ ОТЗЫВОВ */}
+                    {tourData.hotels && tourData.hotels.length > 0 && (
+                        <ReviewOverlay
+                            isOpen={isReviewsOpen}
+                            onClose={() => setIsReviewsOpen(false)}
+                            reviews={activeReviews}
+                        />
+                    )}
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
